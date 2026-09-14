@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111522">
+  <meta name="description" content="A gentle, momentum-building dishwashing companion for ADHD brains.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111522'/%3E%3Cpath d='M18 34c0 11 6 17 14 17s14-6 14-17H18Z' fill='%238f9cff'/%3E%3Cpath d='M22 27c3-5 7-8 10-13 3 5 7 8 10 13' fill='none' stroke='%236ee7c2' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>SinkSync</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
+  <main class="app-shell" id="app">
+    <header class="topbar">
+      <button class="brand" data-action="home" aria-label="Return home">
+        <span class="brand-mark" aria-hidden="true">≈</span>
+        <span>SinkSync</span>
+      </button>
+      <div class="top-actions">
+        <button class="icon-button" data-action="collection" aria-label="Open your shelf">
+          <span aria-hidden="true">▦</span>
+          <span class="mini-count" id="headerDropCount">0</span>
+        </button>
+        <button class="icon-button" data-action="sound" aria-label="Mute sound" aria-pressed="false">
+          <span id="soundIcon" aria-hidden="true">♪</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="view active" id="view-entry" aria-labelledby="entry-title">
+      <div class="entry-grid">
+        <div class="entry-copy">
+          <p class="eyebrow">No whole kitchen required</p>
+          <h1 id="entry-title">Sink looking<br><em>scary?</em></h1>
+          <p class="lede">We are not doing the dishes. We’re finding one fork.</p>
+          <button class="primary-button giant-button" data-action="begin">
+            <span>Yeah. A little.</span>
+            <span class="button-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="text-button" data-action="quick-session">I already started—join me</button>
+        </div>
+
+        <div class="room-card" aria-label="Your cozy shelf">
+          <div class="room-window" aria-hidden="true">
+            <span class="moon"></span>
+            <span class="star star-one">✦</span>
+            <span class="star star-two">·</span>
+          </div>
+          <div class="room-glow" aria-hidden="true"></div>
+          <div class="shelf">
+            <div class="shelf-items" id="entryShelf"></div>
+          </div>
+          <div class="room-caption">
+            <span>Your little night kitchen</span>
+            <span id="roomProgress">0 things found</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry-stats">
+        <div><strong id="entrySessions">0</strong><span>starts</span></div>
+        <div><strong id="entryItems">0</strong><span>things washed</span></div>
+        <div><strong id="entryDrops">0</strong><span>drops gathered</span></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-primer" aria-labelledby="primer-title">
+      <div class="center-column">
+        <button class="back-button" data-action="home">← Not yet</button>
+        <p class="step-label">Just this. Nothing after it.</p>
+        <h2 id="primer-title">Find exactly<br><em>one fork.</em></h2>
+        <p class="support-copy">Put it under the water. Then scrub here with your thumb.</p>
+
+        <div class="scrub-wrap">
+          <div class="scrub-meter" id="scrubMeter" style="--progress: 0%">
+            <div class="scrub-pad" id="scrubPad" role="slider" tabindex="0" aria-label="Scrub back and forth to start" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="scrub-shine" aria-hidden="true"></div>
+              <span class="scrub-glyph" aria-hidden="true">↔</span>
+              <span class="scrub-label" id="scrubLabel">scrub back + forth</span>
+            </div>
+          </div>
+        </div>
+        <p class="tiny-note">One fork counts. Continuing is optional.</p>
+      </div>
+    </section>
+
+    <section class="view" id="view-session" aria-labelledby="session-title">
+      <div class="session-layout">
+        <div class="session-main">
+          <div class="session-head">
+            <div>
+              <p class="eyebrow" id="sessionKicker">You’re in motion</p>
+              <h2 id="session-title">Stay with the next thing.</h2>
+            </div>
+            <div class="timer" id="sessionTimer" aria-label="Elapsed time">00:00</div>
+          </div>
+
+          <div class="orb-stage" id="orbStage">
+            <div class="orbit orbit-one" aria-hidden="true"></div>
+            <div class="orbit orbit-two" aria-hidden="true"></div>
+            <button class="momentum-orb" id="momentumOrb" data-action="checkin" aria-label="Tap to check in and build the music">
+              <span class="orb-core"></span>
+              <span class="orb-copy">
+                <small>still here?</small>
+                <strong>tap the beat</strong>
+              </span>
+            </button>
+            <div class="drop-toast" id="dropToast" aria-live="polite"></div>
+          </div>
+
+          <div class="momentum-panel">
+            <div class="momentum-copy">
+              <span>sound layers</span>
+              <strong id="momentumText">soft pulse</strong>
+            </div>
+            <div class="layer-bars" aria-label="Music momentum">
+              <span class="on"></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <button class="item-button" data-action="item">
+            <span class="item-plus" aria-hidden="true">+</span>
+            <span><strong>I washed one</strong><small>tap whenever something hits the rack</small></span>
+            <span class="item-count" id="itemCount">1</span>
+          </button>
+        </div>
+
+        <aside class="session-side">
+          <div class="drop-card">
+            <span class="drop-icon" aria-hidden="true">◆</span>
+            <div><strong id="sessionDrops">0</strong><span>drops this round</span></div>
+          </div>
+          <div class="next-unlock">
+            <span>forming on your shelf</span>
+            <div class="mystery-object" id="mysteryObject" aria-hidden="true">☕</div>
+            <p id="unlockText">Keep going. Something cozy is taking shape.</p>
+          </div>
+        </aside>
+      </div>
+
+      <button class="ugh-button" data-action="ugh"><span>UGH</span><small>hit the wall?</small></button>
+    </section>
+
+    <section class="view boss-view" id="view-boss" aria-labelledby="boss-title">
+      <div class="boss-noise" aria-hidden="true"></div>
+      <div class="boss-content">
+        <p class="eyebrow">Optional side quest</p>
+        <h2 id="boss-title">Boss<br><em>fight.</em></h2>
+        <div class="boss-clock" id="bossTimer">60</div>
+        <p class="boss-prompt">Three more things. Beat the clock. Then you are officially done.</p>
+        <div class="boss-progress" id="bossProgress" aria-label="Boss fight progress">
+          <span></span><span></span><span></span>
+        </div>
+        <button class="boss-item-button" data-action="boss-item">
+          <span class="boss-plus">+</span>
+          <span>THING IN THE RACK</span>
+        </button>
+        <button class="boss-exit" data-action="tapout">Stop anyway—still counts</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-complete" aria-labelledby="complete-title">
+      <div class="complete-grid">
+        <div>
+          <p class="eyebrow" id="completeEyebrow">That counts</p>
+          <h2 id="complete-title">You made the sink<br><em>less impossible.</em></h2>
+          <p class="lede" id="completeMessage">You started. That was the hard part.</p>
+          <div class="result-row">
+            <div><strong id="finalItems">0</strong><span>things washed</span></div>
+            <div><strong id="finalTime">00:00</strong><span>minutes with it</span></div>
+            <div><strong id="finalDrops">0</strong><span>drops earned</span></div>
+          </div>
+          <div class="completion-actions">
+            <button class="primary-button" data-action="home">Back to my room</button>
+            <button class="text-button" data-action="restart">Do another tiny round</button>
+          </div>
+        </div>
+        <div class="reward-card" id="rewardCard">
+          <p>New on your shelf</p>
+          <div class="reward-object" id="rewardObject" aria-hidden="true">☕</div>
+          <h3 id="rewardName">Moon mug</h3>
+          <span id="rewardRarity">cozy find</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="breaker-dialog" id="breakerDialog">
+    <div class="breaker-inner">
+      <button class="dialog-close" data-action="resume" aria-label="Return to session">×</button>
+      <div class="breaker-signal" aria-hidden="true">!</div>
+      <p class="eyebrow">Circuit broken</p>
+      <h2>Okay. Pause.</h2>
+      <p>Your nervous system gets a vote. Choose the ending that feels possible.</p>
+      <div class="choice-stack">
+        <button class="choice-card" data-action="tapout">
+          <span class="choice-icon" aria-hidden="true">✓</span>
+          <span><strong>Done for now</strong><small id="tapoutCopy">You washed something. Leave the rest.</small></span>
+        </button>
+        <button class="choice-card boss-choice" data-action="boss">
+          <span class="choice-icon" aria-hidden="true">⚡</span>
+          <span><strong>60-second Boss Fight</strong><small>Three more things unlocks a rare find.</small></span>
+        </button>
+      </div>
+      <button class="text-button" data-action="resume">False alarm—I’m going back</button>
+    </div>
+  </dialog>
+
+  <dialog class="collection-dialog" id="collectionDialog">
+    <div class="collection-inner">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">Things you found by starting</p><h2>Your shelf</h2></div>
+        <button class="dialog-close" data-action="close-collection" aria-label="Close shelf">×</button>
+      </div>
+      <div class="collection-grid" id="collectionGrid"></div>
+      <p class="collection-note">Nothing here is a streak. Nothing disappears if you take a break.</p>
+    </div>
+  </dialog>
+
+  <div class="sr-only" aria-live="polite" id="announcer"></div>
+  <script src="app.js"></script>
+</body>
+</html>
