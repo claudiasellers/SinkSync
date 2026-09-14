@@ -147,16 +147,19 @@
     <section class="view boss-view" id="view-boss" aria-labelledby="boss-title">
       <div class="boss-noise" aria-hidden="true"></div>
       <div class="boss-content">
-        <p class="eyebrow">Optional side quest</p>
-        <h2 id="boss-title">Boss<br><em>fight.</em></h2>
+        <p class="eyebrow">60-second Boss Fight</p>
+        <h2 id="boss-title">Wash<br><em>3 things.</em></h2>
         <div class="boss-clock" id="bossTimer">60</div>
-        <p class="boss-prompt">Three more things. Beat the clock. Then you are officially done.</p>
-        <div class="boss-progress" id="bossProgress" aria-label="Boss fight progress">
-          <span></span><span></span><span></span>
+        <p class="boss-prompt"><strong>In your actual sink:</strong> wash any three dishes. Each time one reaches the drying rack, tap the button below.</p>
+        <div class="boss-progress-wrap">
+          <strong id="bossCountText">0 of 3 washed</strong>
+          <div class="boss-progress" id="bossProgress" aria-label="0 of 3 things washed">
+            <span></span><span></span><span></span>
+          </div>
         </div>
         <button class="boss-item-button" data-action="boss-item">
           <span class="boss-plus">+</span>
-          <span>THING IN THE RACK</span>
+          <span>I WASHED ONE</span>
         </button>
         <button class="boss-exit" data-action="tapout">Stop anyway—still counts</button>
       </div>
