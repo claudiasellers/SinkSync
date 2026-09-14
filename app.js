@@ -508,8 +508,8 @@
     const originX = rect.left + rect.width / 2;
     const originY = rect.top + rect.height / 2;
     const palette = boss
-      ? ["#ffd36d", "#ff6d7a", "#f5f4ff", "#929dff"]
-      : ["#69e6c0", "#929dff", "#ffd36d", "#f5f4ff"];
+      ? ["#f1bf4b", "#d55c50", "#fff0c7", "#6aa7d8"]
+      : ["#9dcc6f", "#6aa7d8", "#f1bf4b", "#fff0c7"];
 
     source.classList.remove("completion-pop");
     void source.offsetWidth;
