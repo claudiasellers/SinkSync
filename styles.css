@@ -227,3 +227,105 @@ dialog::backdrop { background:rgba(6,8,14,.78);backdrop-filter:blur(12px); }
   .sequence-exit { right: 50%; transform: translateX(50%); white-space: nowrap; }
   .help-inner { padding: 30px 17px 20px; }
 }
+
+
+/* Shared completion feedback: noticeable, brief, and never blocks the next action */
+.completion-bloom {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--bloom-x, 50%) var(--bloom-y, 50%), rgba(105,230,192,.22), rgba(146,157,255,.08) 18%, transparent 43%);
+  animation: completionBloom .72s var(--ease) both;
+}
+.completion-bloom.boss {
+  background: radial-gradient(circle at var(--bloom-x, 50%) var(--bloom-y, 50%), rgba(255,211,109,.25), rgba(255,109,122,.1) 19%, transparent 44%);
+}
+.completion-burst {
+  position: fixed;
+  inset: 0;
+  z-index: 82;
+  pointer-events: none;
+  overflow: hidden;
+}
+.completion-particle {
+  position: absolute;
+  left: var(--origin-x);
+  top: var(--origin-y);
+  width: var(--particle-size);
+  height: var(--particle-size);
+  border-radius: 50%;
+  background: var(--particle-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--particle-color) 55%, transparent);
+  animation: particleArc .78s var(--ease) both;
+  animation-delay: var(--particle-delay);
+}
+.completion-particle:nth-child(3n) { border-radius: 2px; }
+.completion-ring {
+  position: absolute;
+  left: var(--origin-x);
+  top: var(--origin-y);
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--mint);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: completionRing .68s var(--ease) both;
+}
+.completion-label {
+  position: absolute;
+  left: var(--origin-x);
+  top: var(--origin-y);
+  transform: translate(-50%, -50%);
+  color: var(--text);
+  background: #202a3e;
+  border: 1px solid rgba(105,230,192,.42);
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(0,0,0,.28);
+  animation: completionLabel .92s var(--ease) both;
+}
+.completion-pop {
+  animation: completionButtonPop .58s var(--ease) both !important;
+}
+.item-button.completion-pop,
+.boss-item-button.completion-pop,
+.sequence-done.completion-pop {
+  border-color: rgba(105,230,192,.7);
+  box-shadow: 0 0 0 5px rgba(105,230,192,.1), 0 16px 40px rgba(105,230,192,.18);
+}
+@keyframes completionBloom {
+  0% { opacity: 0; transform: scale(.82); }
+  32% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+@keyframes particleArc {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.25) rotate(0); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--travel-x)), calc(-50% + var(--travel-y))) scale(.2) rotate(var(--particle-rotation)); }
+}
+@keyframes completionRing {
+  0% { opacity: .95; transform: translate(-50%, -50%) scale(.25); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(7); }
+}
+@keyframes completionLabel {
+  0% { opacity: 0; transform: translate(-50%, -20%) scale(.88); }
+  20%, 66% { opacity: 1; transform: translate(-50%, -105%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -160%) scale(.96); }
+}
+@keyframes completionButtonPop {
+  0% { transform: scale(1); }
+  28% { transform: scale(.94); }
+  58% { transform: scale(1.045); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .completion-particle, .completion-ring { display: none; }
+  .completion-bloom { animation: none !important; opacity: .14; }
+  .completion-label { animation: none !important; opacity: 1; transform: translate(-50%, -115%); }
+}
