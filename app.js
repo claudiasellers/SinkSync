@@ -20,6 +20,8 @@
   let scrubLastX = null;
   let scrubLastDirection = 0;
   let scrubActive = false;
+  let scrubStartedAt = 0;
+  let scrubTurns = 0;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -163,6 +165,8 @@
     stopTimers();
     state = freshSession();
     scrubProgress = 0;
+    scrubStartedAt = 0;
+    scrubTurns = 0;
     $("#scrubMeter").style.setProperty("--progress", "0%");
     $("#scrubPad").setAttribute("aria-valuenow", "0");
     $("#scrubLabel").textContent = "scrub back + forth";
@@ -390,13 +394,25 @@
     const delta = x - scrubLastX;
     const direction = Math.sign(delta);
     if (Math.abs(delta) > 2) {
-      scrubProgress = Math.min(100, scrubProgress + Math.abs(delta) * .32 + (direction !== scrubLastDirection && scrubLastDirection ? 2.4 : 0));
+      const changedDirection = direction !== scrubLastDirection && scrubLastDirection !== 0;
+      if (changedDirection) scrubTurns += 1;
+      const elapsed = performance.now() - scrubStartedAt;
+      const movementGain = Math.min(Math.abs(delta), 28) * .065;
+      const turnGain = changedDirection ? 1.25 : 0;
+      scrubProgress = Math.min(96, scrubProgress + movementGain + turnGain);
+      if (scrubProgress >= 94 && elapsed >= 3200 && scrubTurns >= 5) scrubProgress = 100;
       scrubLastDirection = direction;
       scrubLastX = x;
       const rounded = Math.round(scrubProgress);
       $("#scrubMeter").style.setProperty("--progress", rounded + "%");
       $("#scrubPad").setAttribute("aria-valuenow", rounded);
-      $("#scrubLabel").textContent = rounded > 76 ? "almost there" : rounded > 38 ? "yep, exactly that" : "scrub back + forth";
+      $("#scrubLabel").textContent = rounded >= 94
+        ? "one last good scrub"
+        : rounded > 68
+          ? "keep that rhythm"
+          : rounded > 32
+            ? "yep, exactly that"
+            : "scrub back + forth";
       if (rounded >= 100) {
         scrubActive = false;
         $("#scrubPad").classList.remove("active");
@@ -409,6 +425,7 @@
 
   $("#scrubPad").addEventListener("pointerdown", e => {
     scrubActive = true; scrubLastX = e.clientX; scrubLastDirection = 0;
+    scrubStartedAt = performance.now(); scrubTurns = 0;
     e.currentTarget.setPointerCapture(e.pointerId); e.currentTarget.classList.add("active");
     audio.ensure();
   });
