@@ -1254,3 +1254,140 @@ body.sequence-active .topbar { opacity: 1; }
   .scrub-bubble { animation-duration: .01ms !important; }
   .scrub-pad.scrub-complete .scrub-sparkles span { animation: none !important; opacity: 1; }
 }
+
+/* Original illustrated room and collectible sprites */
+.room-card {
+  aspect-ratio: auto;
+  max-height: none;
+  padding: 9px;
+  display: block;
+  background: var(--wood);
+}
+.room-art-frame {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border: 4px solid var(--wood-dark);
+  background: #1a2542;
+  box-shadow: inset 0 0 0 2px rgba(255,240,199,.24);
+}
+.room-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.room-art-sparkle {
+  position: absolute;
+  left: 51%;
+  top: 35%;
+  color: #fff0c7;
+  font-size: 1.25rem;
+  text-shadow: 2px 2px 0 #4f82b1;
+  animation: roomSparkle 1.5s steps(4, end) infinite;
+}
+.room-tray {
+  position: relative;
+  margin-top: 8px;
+  min-height: 112px;
+  padding: 22px 10px 7px;
+  border: 4px solid var(--wood-dark);
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 3px, transparent 3px 7px),
+    #9b603f;
+  box-shadow: inset 3px 3px 0 #c88855;
+}
+.tray-label {
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  color: #f3d89d;
+  font-size: .57rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.shelf-items {
+  height: 76px;
+  gap: clamp(4px, 1vw, 10px);
+  padding: 0;
+}
+.shelf-sprite {
+  width: min(17%, 72px);
+  height: 72px;
+  display: grid;
+  place-items: end center;
+  animation: shelfArrival .48s steps(5, end) both;
+}
+.shelf-sprite img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(3px 4px 0 rgba(39,28,29,.38));
+}
+.room-caption {
+  position: static;
+  padding: 10px 5px 2px;
+  color: #d9cbaa;
+}
+.room-caption span:first-child { color: #fff0c7; }
+.shelf-empty {
+  color: #efd9ad;
+  opacity: .88;
+}
+
+.mystery-object {
+  width: min(132px, 72%);
+  height: 132px;
+  display: grid;
+  place-items: center;
+}
+.mystery-object img,
+.reward-object img,
+.collectible .object img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.all-found-spark { font-size: 4.5rem; color: var(--gold); }
+.reward-object {
+  width: min(230px, 72%);
+  height: 230px;
+}
+.collectible .object {
+  width: min(92px, 82%);
+  height: 92px;
+  display: block;
+}
+.collectible:not(.unlocked) .object {
+  opacity: .28;
+  filter: grayscale(1) brightness(.35) sepia(.25);
+}
+.collectible.unlocked .object {
+  filter: drop-shadow(3px 4px 0 rgba(67,45,44,.25));
+}
+
+@keyframes roomSparkle {
+  0%, 38%, 100% { opacity: .18; transform: scale(.65) rotate(0); }
+  52%, 72% { opacity: 1; transform: scale(1.15) rotate(90deg); }
+}
+@keyframes shelfArrival {
+  from { opacity: 0; transform: translateY(10px) scale(.76); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 760px) {
+  .room-card { width: 100%; padding: 7px; }
+  .room-tray { min-height: 100px; }
+  .shelf-items, .shelf-sprite { height: 66px; }
+  .room-caption { font-size: .66rem; }
+  .mystery-object { height: 108px; }
+  .collectible .object { width: 76px; height: 76px; }
+  .reward-object { width: 190px; height: 190px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-art-sparkle,
+  .shelf-sprite { animation: none !important; }
+}

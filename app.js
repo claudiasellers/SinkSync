@@ -3,12 +3,12 @@
 
   const STORAGE_KEY = "sinksync-progress-v1";
   const collectibles = [
-    { id: "mug", icon: "☕", name: "Moon mug", cost: 1, rarity: "cozy find" },
-    { id: "sprout", icon: "🌱", name: "Window sprout", cost: 4, rarity: "small wonder" },
-    { id: "lamp", icon: "🏮", name: "Soft lamp", cost: 8, rarity: "warm find" },
-    { id: "fern", icon: "🪴", name: "Night fern", cost: 14, rarity: "lush find" },
-    { id: "radio", icon: "📻", name: "Tiny radio", cost: 22, rarity: "good company" },
-    { id: "rare", icon: "🌵", name: "Star cactus", cost: Infinity, rarity: "rare boss find", rare: true }
+    { id: "mug", image: "assets/collectible-moon-mug.webp", name: "Moon mug", cost: 1, rarity: "cozy find" },
+    { id: "sprout", image: "assets/collectible-window-sprout.webp", name: "Window sprout", cost: 4, rarity: "small wonder" },
+    { id: "lamp", image: "assets/collectible-soft-lamp.webp", name: "Soft lamp", cost: 8, rarity: "warm find" },
+    { id: "fern", image: "assets/collectible-night-fern.webp", name: "Night fern", cost: 14, rarity: "lush find" },
+    { id: "radio", image: "assets/collectible-tiny-radio.webp", name: "Tiny radio", cost: 22, rarity: "good company" },
+    { id: "rare", image: "assets/collectible-star-cactus.webp", name: "Star cactus", cost: Infinity, rarity: "rare boss find", rare: true }
   ];
 
   const tinySteps = [
@@ -256,7 +256,7 @@
     const unlocked = collectibles.filter(c => saved.unlocked.includes(c.id));
     $("#roomProgress").textContent = unlocked.length + (unlocked.length === 1 ? " thing found" : " things found");
     $("#entryShelf").innerHTML = unlocked.length
-      ? unlocked.slice(-5).map(c => `<span title="${c.name}">${c.icon}</span>`).join("")
+      ? unlocked.slice(-5).map(c => `<span class="shelf-sprite" title="${c.name}"><img src="${c.image}" alt=""></span>`).join("")
       : '<span class="shelf-empty">Your first tiny start<br>puts something here.</span>';
     renderCollection();
     $("#soundIcon").textContent = saved.sound ? "♪" : "×";
@@ -295,7 +295,9 @@
     $$(".layer-bars span").forEach((bar, i) => bar.classList.toggle("on", i < state.momentum));
     audio.setLayers(state.momentum);
     const next = collectibles.find(c => !c.rare && !saved.unlocked.includes(c.id));
-    $("#mysteryObject").textContent = next ? next.icon : "✦";
+    $("#mysteryObject").innerHTML = next
+      ? `<img src="${next.image}" alt="">`
+      : '<span class="all-found-spark">✦</span>';
     $("#mysteryObject").style.filter = next ? "blur(7px) grayscale(1)" : "none";
     $("#unlockText").textContent = next
       ? Math.max(0, next.cost - saved.totalDrops) + " drops until it comes into focus."
@@ -497,7 +499,7 @@
     $("#finalItems").textContent = state.items;
     $("#finalTime").textContent = formatTime(state.elapsed);
     $("#finalDrops").textContent = state.drops;
-    $("#rewardObject").textContent = sessionReward.icon;
+    $("#rewardObject").innerHTML = `<img src="${sessionReward.image}" alt="">`;
     $("#rewardName").textContent = sessionReward.name;
     $("#rewardRarity").textContent = sessionReward.rarity;
     if (bossWon) {
@@ -521,7 +523,7 @@
       const unlocked = saved.unlocked.includes(c.id);
       const requirement = c.rare ? "win a Boss Fight" : c.cost + " drops";
       return `<div class="collectible ${unlocked ? "unlocked" : ""}">
-        <span class="object" aria-hidden="true">${unlocked ? c.icon : "?"}</span>
+        <span class="object" aria-hidden="true"><img src="${c.image}" alt=""></span>
         <strong>${unlocked ? c.name : "Not found yet"}</strong>
         <small>${unlocked ? c.rarity : requirement}</small>
       </div>`;
