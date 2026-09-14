@@ -77,9 +77,19 @@
         <div class="scrub-wrap">
           <div class="scrub-meter" id="scrubMeter" style="--progress: 0%">
             <div class="scrub-pad" id="scrubPad" role="slider" tabindex="0" aria-label="Scrub back and forth to start" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="scrub-grime" id="scrubGrime" aria-hidden="true"></div>
+              <div class="scrub-bubbles" id="scrubBubbles" aria-hidden="true"></div>
               <div class="scrub-shine" aria-hidden="true"></div>
               <span class="scrub-glyph" aria-hidden="true">↔</span>
               <span class="scrub-label" id="scrubLabel">scrub back + forth</span>
+              <div class="scrub-sparkles" aria-hidden="true">
+                <span>✦</span><span>✦</span><span>✦</span>
+              </div>
+              <div class="scrub-success" id="scrubSuccess" hidden>
+                <span class="success-spark" aria-hidden="true">✦</span>
+                <strong>YOU DID THE HARD PART.</strong>
+                <p>You started. Your sink is about to look so clean.</p>
+              </div>
             </div>
           </div>
         </div>
