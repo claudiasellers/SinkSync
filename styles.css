@@ -180,3 +180,49 @@ dialog::backdrop { background:rgba(6,8,14,.78);backdrop-filter:blur(12px); }
 }
 @media (max-width: 380px){.session-side{grid-template-columns:1fr}.next-unlock{display:none}.item-button small{display:none}.room-caption{font-size:.68rem}}
 @media (prefers-reduced-motion: reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Overwhelmed sequencing mode */
+.sequence-choice .choice-icon { background: var(--periwinkle); }
+.done-choice .choice-icon { background: rgba(255,255,255,.12); color: var(--text); }
+.sequence-view { place-items: center; padding: 42px 0; }
+.sequence-shell { width: min(100%, 920px); display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(28px, 6vw, 70px); align-items: center; position: relative; }
+.sequence-intro h2 { font-size: clamp(3.2rem, 6.8vw, 5.8rem); }
+.sequence-intro > p:last-child { color: var(--muted); font-size: 1.04rem; line-height: 1.6; max-width: 27rem; margin-top: 24px; }
+.sequence-card, .sequence-finish { border: 1px solid rgba(146,157,255,.2); border-radius: 32px; background: linear-gradient(145deg, rgba(38,47,70,.96), rgba(25,31,48,.98)); box-shadow: var(--shadow); padding: clamp(24px, 4vw, 40px); min-height: 470px; }
+.sequence-card { display: flex; flex-direction: column; }
+.sequence-meta { display: flex; justify-content: space-between; gap: 18px; color: var(--muted); text-transform: uppercase; letter-spacing: .11em; font-size: .65rem; font-weight: 700; }
+.sequence-meta span:first-child { color: var(--mint); }
+.sequence-instruction { font-size: clamp(2rem, 4.4vw, 3.35rem); line-height: 1.08; letter-spacing: -.045em; font-weight: 600; margin: auto 0; text-wrap: balance; }
+.sequence-instruction.smaller { color: #d9ddff; }
+.sequence-actions { display: grid; gap: 9px; }
+.sequence-done { width: 100%; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; padding: 0 24px; }
+.sequence-secondary { min-height: 48px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.035); color: var(--muted); cursor: pointer; transition: .2s var(--ease); }
+.sequence-secondary:hover { color: var(--text); background: rgba(255,255,255,.07); }
+.sequence-finish { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sequence-finish[hidden] { display: none; }
+.sequence-check { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--ink); font-weight: 800; font-size: 1.5rem; margin-bottom: 20px; }
+.sequence-finish h3 { font-size: clamp(1.8rem, 4vw, 2.7rem); letter-spacing: -.04em; margin: 0 0 10px; }
+.sequence-finish > p:not(.eyebrow) { color: var(--muted); line-height: 1.55; max-width: 26rem; margin: 0 auto 24px; }
+.sequence-end-actions { width: 100%; display: grid; gap: 10px; }
+.sequence-end-actions .choice-card { text-align: left; }
+.sequence-exit { position: absolute; right: 0; bottom: -52px; border: 0; background: transparent; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.help-dialog { color: var(--text); border: 1px solid var(--line); padding: 0; border-radius: 30px; background: #1d2538; box-shadow: var(--shadow); width: min(calc(100% - 28px), 530px); }
+.help-inner { padding: 34px; position: relative; }
+.help-inner h2 { font-size: 2.7rem; letter-spacing: -.055em; }
+.help-options { display: grid; gap: 10px; margin-top: 24px; }
+.help-options button { min-height: 70px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.04); color: var(--text); text-align: left; padding: 14px 17px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; }
+.help-options button:hover { background: rgba(255,255,255,.08); }
+.help-options small { color: var(--muted); }
+
+@media (max-width: 760px) {
+  .sequence-view { align-items: start; padding: 36px 0 74px; }
+  .sequence-shell { grid-template-columns: 1fr; gap: 28px; }
+  .sequence-intro h2 { font-size: 3.65rem; }
+  .sequence-intro > p:last-child { margin: 18px 0 0; }
+  .sequence-card, .sequence-finish { min-height: 430px; border-radius: 27px; padding: 25px 20px; }
+  .sequence-instruction { font-size: 2.35rem; }
+  .sequence-meta span:last-child { display: none; }
+  .sequence-exit { right: 50%; transform: translateX(50%); white-space: nowrap; }
+  .help-inner { padding: 30px 17px 20px; }
+}
