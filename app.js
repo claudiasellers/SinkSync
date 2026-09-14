@@ -268,7 +268,9 @@
     state.items += 1;
     if (isBoss) {
       state.bossItems = Math.min(3, state.bossItems + 1);
-      $$("#bossProgress span").forEach((dot, i) => dot.classList.toggle("done", i < state.bossItems));
+      $("#bossProgress span").forEach((dot, i) => dot.classList.toggle("done", i < state.bossItems));
+      $("#bossCountText").textContent = state.bossItems + " of 3 washed";
+      $("#bossProgress").setAttribute("aria-label", state.bossItems + " of 3 things washed");
       audio.blip(); vibrate(25);
       if (state.bossItems >= 3) {
         state.rareWon = true;
@@ -313,7 +315,9 @@
     state.bossItems = 0;
     showView("boss");
     $("#bossTimer").textContent = "60";
-    $$("#bossProgress span").forEach(dot => dot.classList.remove("done"));
+    $("#bossCountText").textContent = "0 of 3 washed";
+    $("#bossProgress").setAttribute("aria-label", "0 of 3 things washed");
+    $("#bossProgress span").forEach(dot => dot.classList.remove("done"));
     audio.setBoss(true); audio.setLayers(4); audio.start();
     timerId = setInterval(() => {
       state.bossLeft -= 1;
