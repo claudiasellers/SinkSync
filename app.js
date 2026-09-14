@@ -138,6 +138,11 @@
       if (!this.ensure()) return;
       [523.25, 783.99].forEach((note, index) => setTimeout(() => this.tone(note, .28, "sine", .065), index * 65));
     }
+    complete(boss = false) {
+      if (!this.ensure()) return;
+      const notes = boss ? [392, 523.25, 659.25] : [523.25, 659.25, 783.99];
+      notes.forEach((note, index) => setTimeout(() => this.tone(note, .2, "sine", .042), index * 52));
+    }
     reward() {
       if (!this.ensure()) return;
       [392, 493.9, 587.3, 784].forEach((note, index) => setTimeout(() => this.tone(note, .34, "triangle", .055), index * 95));
@@ -287,7 +292,7 @@
       $("#bossProgress span").forEach((dot, i) => dot.classList.toggle("done", i < state.bossItems));
       $("#bossCountText").textContent = state.bossItems + " of 3 washed";
       $("#bossProgress").setAttribute("aria-label", state.bossItems + " of 3 things washed");
-      audio.blip(); vibrate(25);
+      celebrateCompletion($('[data-action="boss-item"]'), { boss: true, label: state.bossItems + " of 3 washed" });
       if (state.bossItems >= 3) {
         state.rareWon = true;
         if (!saved.unlocked.includes("rare")) saved.unlocked.push("rare");
@@ -299,7 +304,8 @@
         state.momentum = Math.min(4, state.momentum + 1);
         earnDrop(1, "rack drop");
       }
-      renderSession(); audio.blip(); vibrate(15);
+      renderSession();
+      celebrateCompletion($('[data-action="item"]'), { label: "+1 washed" });
     }
   }
 
@@ -367,6 +373,7 @@
       announce(tinySteps[state.sequenceIndex].step);
       return;
     }
+    celebrateCompletion($('[data-action="sequence-done"]'), { label: "one whole dish ✓" });
     state.items += 1;
     state.drops += 1;
     saved.totalDrops += 1;
@@ -483,6 +490,63 @@
     }).join("");
   }
 
+
+  function celebrateCompletion(source, options = {}) {
+    if (!source) return;
+    const boss = Boolean(options.boss);
+    const rect = source.getBoundingClientRect();
+    const originX = rect.left + rect.width / 2;
+    const originY = rect.top + rect.height / 2;
+    const palette = boss
+      ? ["#ffd36d", "#ff6d7a", "#f5f4ff", "#929dff"]
+      : ["#69e6c0", "#929dff", "#ffd36d", "#f5f4ff"];
+
+    source.classList.remove("completion-pop");
+    void source.offsetWidth;
+    source.classList.add("completion-pop");
+
+    const bloom = document.createElement("div");
+    bloom.className = "completion-bloom" + (boss ? " boss" : "");
+    bloom.style.setProperty("--bloom-x", originX + "px");
+    bloom.style.setProperty("--bloom-y", originY + "px");
+
+    const burst = document.createElement("div");
+    burst.className = "completion-burst";
+    burst.style.setProperty("--origin-x", originX + "px");
+    burst.style.setProperty("--origin-y", originY + "px");
+
+    const ring = document.createElement("span");
+    ring.className = "completion-ring";
+    burst.appendChild(ring);
+
+    const count = boss ? 16 : 12;
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement("span");
+      const angle = (Math.PI * 2 * i / count) + (Math.random() * .24 - .12);
+      const distance = (boss ? 72 : 54) + Math.random() * (boss ? 62 : 46);
+      particle.className = "completion-particle";
+      particle.style.setProperty("--travel-x", Math.cos(angle) * distance + "px");
+      particle.style.setProperty("--travel-y", Math.sin(angle) * distance - 16 + "px");
+      particle.style.setProperty("--particle-size", (4 + Math.random() * 5) + "px");
+      particle.style.setProperty("--particle-color", palette[i % palette.length]);
+      particle.style.setProperty("--particle-rotation", (120 + Math.random() * 220) + "deg");
+      particle.style.setProperty("--particle-delay", (Math.random() * .07) + "s");
+      burst.appendChild(particle);
+    }
+
+    const label = document.createElement("span");
+    label.className = "completion-label";
+    label.textContent = options.label || "+1 washed";
+    burst.appendChild(label);
+
+    document.body.append(bloom, burst);
+    audio.complete(boss);
+    vibrate(boss ? [20, 28, 38] : [14, 24, 28]);
+
+    setTimeout(() => source.classList.remove("completion-pop"), 650);
+    setTimeout(() => { bloom.remove(); burst.remove(); }, 1050);
+  }
+
   function announce(message) {
     $("#announcer").textContent = "";
     setTimeout(() => $("#announcer").textContent = message, 20);
@@ -529,9 +593,8 @@
       if (rounded >= 100) {
         scrubActive = false;
         $("#scrubPad").classList.remove("active");
-        vibrate([30, 30, 50]);
-        audio.chime();
-        setTimeout(() => startSession(false), 380);
+        celebrateCompletion($("#scrubPad"), { label: "one fork done ✓" });
+        setTimeout(() => startSession(false), 720);
       }
     }
   }
