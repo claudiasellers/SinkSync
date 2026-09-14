@@ -1057,6 +1057,25 @@ body.sequence-active .topbar { opacity: 1; }
 .collectible.unlocked .object { filter: drop-shadow(3px 4px 0 rgba(67,45,44,.25)); opacity: 1; }
 .collectible small { color: #765b49; }
 
+.reset-progress-button {
+  display: block;
+  width: fit-content;
+  margin: 20px auto 0;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 2px solid rgba(67,45,44,.42);
+  background: transparent;
+  color: #765b49;
+  font: inherit;
+  font-size: .72rem;
+  cursor: pointer;
+}
+.reset-progress-button:hover,
+.reset-progress-button:focus-visible {
+  color: #9f3f3b;
+  border-bottom-color: #9f3f3b;
+}
+
 .completion-bloom {
   background: radial-gradient(circle at var(--bloom-x, 50%) var(--bloom-y, 50%), rgba(157,204,111,.28), rgba(241,191,75,.1) 18%, transparent 42%);
 }
