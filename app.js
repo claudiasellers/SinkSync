@@ -61,11 +61,21 @@
         if (!AC) return false;
         this.ctx = new AC();
         this.master = this.ctx.createGain();
-        this.master.gain.value = 0.12;
+        this.master.gain.value = 0.42;
         this.master.connect(this.ctx.destination);
       }
-      if (this.ctx.state === "suspended") this.ctx.resume();
+      if (this.ctx.state !== "running") this.ctx.resume().catch(() => {});
       return true;
+    }
+    unlock(playCue = false) {
+      if (!this.ensure()) return;
+      const confirm = () => {
+        if (!playCue || !saved.sound) return;
+        this.tone(659.25, .1, "sine", .075);
+        setTimeout(() => this.tone(880, .13, "sine", .055), 70);
+      };
+      if (this.ctx.state === "running") confirm();
+      else this.ctx.resume().then(confirm).catch(() => {});
     }
     start() {
       if (!this.ensure()) return;
@@ -86,20 +96,27 @@
     }
     scheduleLoop() {
       const interval = this.boss ? 112 : 192;
-      this.loop = setInterval(() => {
+      const tick = () => {
         if (!this.playing || !saved.sound || !this.ctx) return;
         const s = this.step++ % 16;
-        if (s % 4 === 0) this.kick(this.boss ? 0.16 : 0.11);
-        if (this.layers >= 2 && s % 2 === 0) this.hat(s % 4 === 2 ? 0.035 : 0.022);
+        if (s % 4 === 0) this.kick(this.boss ? .2 : .15);
+        // The first layer must survive small phone and laptop speakers.
+        if (!this.boss && (s === 2 || s === 10)) {
+          const pulseNotes = [196, 220];
+          this.tone(pulseNotes[s === 2 ? 0 : 1], .3, "triangle", .062);
+        }
+        if (this.layers >= 2 && s % 2 === 0) this.hat(s % 4 === 2 ? .05 : .034);
         if (this.layers >= 3 && s % 4 === 0) {
-          const notes = this.boss ? [98, 110, 131, 147] : [73.4, 82.4, 98, 82.4];
-          this.tone(notes[Math.floor(s / 4)], .16, "triangle", 0.045);
+          const notes = this.boss ? [98, 110, 131, 147] : [146.8, 164.8, 196, 164.8];
+          this.tone(notes[Math.floor(s / 4)], .18, "triangle", .06);
         }
         if (this.layers >= 4 && (s === 2 || s === 6 || s === 10 || s === 14)) {
           const notes = this.boss ? [392, 440, 523, 587] : [293.7, 329.6, 392, 329.6];
-          this.tone(notes[(s - 2) / 4], .1, "sine", 0.026);
+          this.tone(notes[(s - 2) / 4], .13, "sine", .045);
         }
-      }, interval);
+      };
+      tick();
+      this.loop = setInterval(tick, interval);
     }
     tone(freq, duration, type = "sine", volume = .04) {
       if (!this.ensure()) return;
@@ -583,8 +600,28 @@
     saved.sound = !saved.sound;
     persist();
     if (!saved.sound) audio.stop();
-    else if (state.phase === "session" || state.phase === "boss") audio.start();
+    else {
+      audio.unlock(true);
+      if (state.phase === "session" || state.phase === "boss") audio.start();
+    }
     announce(saved.sound ? "Sound on" : "Sound off");
+  }
+
+  function resetProgress() {
+    const confirmed = window.confirm(
+      "Reset all SinkSync progress? This clears every drop, washed-item count, session, and shelf unlock."
+    );
+    if (!confirmed) return;
+
+    stopTimers();
+    audio.stop();
+    localStorage.removeItem(STORAGE_KEY);
+    saved = { ...defaults, unlocked: [] };
+    state = freshSession();
+    if ($("#collectionDialog").open) $("#collectionDialog").close();
+    renderPersistent();
+    showView("entry");
+    announce("SinkSync progress reset to zero.");
   }
 
   function updateScrubVisuals(progress) {
@@ -678,7 +715,7 @@
     scrubActive = true; scrubLastX = e.clientX; scrubLastDirection = 0;
     scrubStartedAt = performance.now(); scrubTurns = 0;
     e.currentTarget.setPointerCapture(e.pointerId); e.currentTarget.classList.add("active");
-    audio.ensure();
+    audio.unlock(false);
   });
   $("#scrubPad").addEventListener("pointermove", e => { if (scrubActive) scrubMove(e.clientX, e.clientY); });
   $("#scrubPad").addEventListener("pointerup", e => { scrubActive = false; scrubLastX = null; e.currentTarget.classList.remove("active"); });
@@ -697,8 +734,8 @@
     const target = e.target.closest("[data-action]");
     if (!target) return;
     const action = target.dataset.action;
-    if (action === "begin") { audio.ensure(); startPrimer(); }
-    if (action === "quick-session") { audio.ensure(); startSession(true); }
+    if (action === "begin") { audio.unlock(true); startPrimer(); }
+    if (action === "quick-session") { audio.unlock(false); startSession(true); }
     if (action === "home") returnHome();
     if (action === "restart") startPrimer();
     if (action === "sound") toggleSound();
@@ -732,6 +769,7 @@
     if (action === "boss-item") addItem(true);
     if (action === "collection") { renderCollection(); $("#collectionDialog").showModal(); }
     if (action === "close-collection") $("#collectionDialog").close();
+    if (action === "reset-progress") resetProgress();
   });
 
   $("#breakerDialog").addEventListener("cancel", e => { e.preventDefault(); resumeSession(); });
