@@ -147,24 +147,38 @@
 
     <section class="view sequence-view" id="view-sequence" aria-labelledby="sequence-title">
       <div class="sequence-shell">
-        <div class="sequence-intro">
-          <p class="eyebrow">I can’t do this mode</p>
-          <h2 id="sequence-title">Okay.<br><em>I’ll hold the sequence.</em></h2>
-          <p>No whole task. No speed. Just do the one physical movement in the box.</p>
-        </div>
+        <header class="sequence-intro">
+          <div class="mode-label"><span aria-hidden="true">1</span> Step-by-step mode</div>
+          <h2 id="sequence-title">One thing at a time.</h2>
+          <p>I’ll remember the whole sequence. You only need to look at this step.</p>
+        </header>
 
         <div class="sequence-card" id="sequenceCard">
-          <div class="sequence-meta">
-            <span id="sequenceCounter">Tiny step 1</span>
-            <span>There is no failing this.</span>
+          <div class="sequence-progress-heading">
+            <span id="sequenceCounter">Step 1 of 13</span>
+            <span id="sequenceProgressText">1 / 13</span>
           </div>
-          <p class="sequence-instruction" id="sequenceInstruction">Put your phone somewhere you can still see it.</p>
+          <div class="sequence-progress-track" id="sequenceProgress" role="progressbar" aria-label="Dishwashing sequence progress" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1">
+            <span id="sequenceProgressBar"></span>
+          </div>
+
+          <div class="instruction-block">
+            <span class="instruction-label" id="sequenceInstructionLabel">Do this now</span>
+            <p class="sequence-instruction" id="sequenceInstruction" tabindex="-1">Put your phone somewhere you can still see it.</p>
+          </div>
+
           <div class="sequence-actions">
             <button class="primary-button sequence-done" data-action="sequence-done">
-              <span>I did that</span><span aria-hidden="true">→</span>
+              <span>Done — next step</span><span aria-hidden="true">→</span>
             </button>
-            <button class="sequence-secondary" data-action="sequence-smaller">Make this even smaller</button>
-            <button class="sequence-secondary" data-action="sequence-blocked">Something is blocking me</button>
+            <div class="sequence-help-actions">
+              <button class="sequence-secondary" data-action="sequence-smaller">
+                <span aria-hidden="true">−</span><span>Make it smaller</span>
+              </button>
+              <button class="sequence-secondary" data-action="sequence-blocked">
+                <span aria-hidden="true">?</span><span>I’m blocked</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -183,7 +197,7 @@
           </div>
         </div>
 
-        <button class="sequence-exit" data-action="tapout">I need to stop now</button>
+        <button class="sequence-exit" data-action="tapout">Stop for now</button>
       </div>
     </section>
 
