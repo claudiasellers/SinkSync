@@ -11,6 +11,22 @@
     { id: "rare", icon: "🌵", name: "Star cactus", cost: Infinity, rarity: "rare boss find", rare: true }
   ];
 
+  const tinySteps = [
+    { step: "Put your phone somewhere you can still see this.", smaller: "Move the phone one hand-width away from the sink." },
+    { step: "Stand in front of the sink. Don’t clean anything yet.", smaller: "Put both feet on the floor. Now point your body toward the sink." },
+    { step: "Find your sponge or dish brush. Put it beside the sink.", smaller: "Look for the sponge. You do not have to pick it up yet." },
+    { step: "Turn on the water. Aim for warm, not hot.", smaller: "Touch the faucet handle. That is the entire step." },
+    { step: "Choose the least gross thing you can see.", smaller: "Just look. Find one cup, fork, or plate that feels least bad." },
+    { step: "Pick it up by the cleanest-looking edge.", smaller: "Put one finger on its cleanest-looking edge." },
+    { step: "Push any solid food into the trash or disposal.", smaller: "Use a fork or paper towel as a barrier. Move just the biggest piece." },
+    { step: "Put one squeeze of soap on the sponge or brush.", smaller: "Pick up the soap bottle. Don’t squeeze it yet." },
+    { step: "Wet the sponge or brush.", smaller: "Move the sponge under the water for one second." },
+    { step: "Scrub only the front or inside of the dish.", smaller: "Make three little circles in one spot." },
+    { step: "Flip it over. Scrub the back.", smaller: "Turn the dish over. That is the whole step." },
+    { step: "Rinse until you can’t see bubbles.", smaller: "Put one edge under the water. Let the water do the work." },
+    { step: "Put it in the drying rack.", smaller: "Move it toward the rack. You can set it down anywhere safe." }
+  ];
+
   const defaults = { totalDrops: 0, totalItems: 0, sessions: 0, unlocked: [], sound: true };
   let saved = loadProgress();
   let state = freshSession();
@@ -132,7 +148,7 @@
   const audio = new SinkAudio();
 
   function freshSession() {
-    return { phase: "entry", elapsed: 0, items: 0, drops: 0, momentum: 1, bossLeft: 60, bossItems: 0, rareWon: false, lastReward: null };
+    return { phase: "entry", elapsed: 0, items: 0, drops: 0, momentum: 1, bossLeft: 60, bossItems: 0, rareWon: false, lastReward: null, sequenceIndex: 0, sequenceSmaller: false, sequenceDetour: false };
   }
 
   function loadProgress() {
@@ -309,6 +325,99 @@
     dropId = setInterval(() => earnDrop(1, "momentum drop"), 42000);
   }
 
+
+  function startSequence(startIndex = 0) {
+    if ($("#breakerDialog").open) $("#breakerDialog").close();
+    stopTimers();
+    audio.stop();
+    state.sequenceIndex = startIndex;
+    state.sequenceSmaller = false;
+    state.sequenceDetour = false;
+    $("#sequenceCard").hidden = false;
+    $("#sequenceFinish").hidden = true;
+    $(".sequence-exit").hidden = false;
+    showView("sequence");
+    renderSequence();
+    timerId = setInterval(() => { state.elapsed += 1; }, 1000);
+    announce("One-step mode started. " + tinySteps[state.sequenceIndex].step);
+  }
+
+  function renderSequence() {
+    const current = tinySteps[state.sequenceIndex];
+    $("#sequenceCounter").textContent = "Tiny step " + (state.sequenceIndex + 1) + " of " + tinySteps.length;
+    $("#sequenceInstruction").textContent = state.sequenceSmaller ? current.smaller : current.step;
+    $("#sequenceInstruction").classList.toggle("smaller", state.sequenceSmaller);
+    $('[data-action="sequence-smaller"]').textContent = state.sequenceSmaller ? "Show the original step" : "Make this even smaller";
+  }
+
+  function sequenceDone() {
+    if (state.sequenceDetour) {
+      state.sequenceDetour = false;
+      state.sequenceSmaller = false;
+      renderSequence();
+      announce("Good. Back to the same step.");
+      return;
+    }
+    if (state.sequenceIndex < tinySteps.length - 1) {
+      state.sequenceIndex += 1;
+      state.sequenceSmaller = false;
+      renderSequence();
+      audio.blip();
+      vibrate(12);
+      announce(tinySteps[state.sequenceIndex].step);
+      return;
+    }
+    state.items += 1;
+    state.drops += 1;
+    saved.totalDrops += 1;
+    const unlocked = unlockEligible();
+    if (unlocked) state.lastReward = unlocked;
+    persist();
+    $("#sequenceCard").hidden = true;
+    $("#sequenceFinish").hidden = false;
+    $(".sequence-exit").hidden = true;
+    audio.reward();
+    vibrate([22, 30, 45]);
+    announce("One complete dish. You may stop, repeat, or return to the music.");
+  }
+
+  function toggleSequenceSize() {
+    state.sequenceSmaller = !state.sequenceSmaller;
+    state.sequenceDetour = false;
+    renderSequence();
+    announce($("#sequenceInstruction").textContent);
+  }
+
+  function openSequenceHelp() {
+    $("#sequenceHelpDialog").showModal();
+  }
+
+  function setSequenceDetour(message) {
+    $("#sequenceHelpDialog").close();
+    state.sequenceDetour = true;
+    state.sequenceSmaller = false;
+    $("#sequenceInstruction").classList.add("smaller");
+    $("#sequenceInstruction").textContent = message;
+    $('[data-action="sequence-smaller"]').textContent = "Make this even smaller";
+    announce(message);
+  }
+
+  function resumeFlowFromSequence() {
+    stopTimers();
+    showView("session");
+    renderSession();
+    audio.setBoss(false);
+    audio.setLayers(state.momentum);
+    audio.start();
+    timerId = setInterval(() => {
+      state.elapsed += 1;
+      $("#sessionTimer").textContent = formatTime(state.elapsed);
+      if (state.elapsed % 18 === 0) earnDrop(1, "a drop found");
+    }, 1000);
+    dropId = setInterval(() => earnDrop(1, "momentum drop"), 42000);
+    announce("Back in flow. Keep the next thing small.");
+  }
+
   function startBoss() {
     $("#breakerDialog").close();
     state.bossLeft = 60;
@@ -460,7 +569,25 @@
     if (action === "resume") resumeSession();
     if (action === "tapout") {
       if ($("#breakerDialog").open) $("#breakerDialog").close();
+      if ($("#sequenceHelpDialog").open) $("#sequenceHelpDialog").close();
       finishSession(false);
+    }
+    if (action === "sequence") startSequence(0);
+    if (action === "sequence-done") sequenceDone();
+    if (action === "sequence-smaller") toggleSequenceSize();
+    if (action === "sequence-blocked") openSequenceHelp();
+    if (action === "sequence-repeat") startSequence(4);
+    if (action === "sequence-flow") resumeFlowFromSequence();
+    if (action === "close-help") $("#sequenceHelpDialog").close();
+    if (action === "help-gross") setSequenceDetour("Use a dry paper towel, fork, or spatula as a barrier. Move only the biggest gross piece.");
+    if (action === "help-space") setSequenceDetour("Make one landing spot. Move exactly one clean or dry thing out of the rack.");
+    if (action === "help-frozen") setSequenceDetour("Do not lift anything. Put one fingertip on the cleanest object you can see.");
+    if (action === "help-lost") {
+      $("#sequenceHelpDialog").close();
+      state.sequenceDetour = false;
+      state.sequenceSmaller = false;
+      renderSequence();
+      announce($("#sequenceInstruction").textContent);
     }
     if (action === "boss") startBoss();
     if (action === "boss-item") addItem(true);
@@ -469,6 +596,7 @@
   });
 
   $("#breakerDialog").addEventListener("cancel", e => { e.preventDefault(); resumeSession(); });
+  $("#sequenceHelpDialog").addEventListener("cancel", e => { e.preventDefault(); e.currentTarget.close(); });
   $("#collectionDialog").addEventListener("click", e => {
     if (e.target === $("#collectionDialog")) $("#collectionDialog").close();
   });
