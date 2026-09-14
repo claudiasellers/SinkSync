@@ -144,6 +144,49 @@
       <button class="ugh-button" data-action="ugh"><span>UGH</span><small>hit the wall?</small></button>
     </section>
 
+
+    <section class="view sequence-view" id="view-sequence" aria-labelledby="sequence-title">
+      <div class="sequence-shell">
+        <div class="sequence-intro">
+          <p class="eyebrow">I can’t do this mode</p>
+          <h2 id="sequence-title">Okay.<br><em>I’ll hold the sequence.</em></h2>
+          <p>No whole task. No speed. Just do the one physical movement in the box.</p>
+        </div>
+
+        <div class="sequence-card" id="sequenceCard">
+          <div class="sequence-meta">
+            <span id="sequenceCounter">Tiny step 1</span>
+            <span>There is no failing this.</span>
+          </div>
+          <p class="sequence-instruction" id="sequenceInstruction">Put your phone somewhere you can still see it.</p>
+          <div class="sequence-actions">
+            <button class="primary-button sequence-done" data-action="sequence-done">
+              <span>I did that</span><span aria-hidden="true">→</span>
+            </button>
+            <button class="sequence-secondary" data-action="sequence-smaller">Make this even smaller</button>
+            <button class="sequence-secondary" data-action="sequence-blocked">Something is blocking me</button>
+          </div>
+        </div>
+
+        <div class="sequence-finish" id="sequenceFinish" hidden>
+          <span class="sequence-check" aria-hidden="true">✓</span>
+          <p class="eyebrow">One complete loop</p>
+          <h3>You washed one whole thing.</h3>
+          <p>You do not owe the sink another one. Pick the ending your body can actually do.</p>
+          <div class="sequence-end-actions">
+            <button class="primary-button" data-action="sequence-repeat">Walk me through one more</button>
+            <button class="choice-card" data-action="sequence-flow">
+              <span class="choice-icon" aria-hidden="true">♪</span>
+              <span><strong>I have momentum now</strong><small>Return to the music and keep going.</small></span>
+            </button>
+            <button class="text-button" data-action="tapout">Stop here. This counts.</button>
+          </div>
+        </div>
+
+        <button class="sequence-exit" data-action="tapout">I need to stop now</button>
+      </div>
+    </section>
+
     <section class="view boss-view" id="view-boss" aria-labelledby="boss-title">
       <div class="boss-noise" aria-hidden="true"></div>
       <div class="boss-content">
@@ -199,16 +242,35 @@
       <h2>Okay. Pause.</h2>
       <p>Your nervous system gets a vote. Choose the ending that feels possible.</p>
       <div class="choice-stack">
-        <button class="choice-card" data-action="tapout">
-          <span class="choice-icon" aria-hidden="true">✓</span>
-          <span><strong>Done for now</strong><small id="tapoutCopy">You washed something. Leave the rest.</small></span>
+        <button class="choice-card sequence-choice" data-action="sequence">
+          <span class="choice-icon" aria-hidden="true">…</span>
+          <span><strong>I can’t do this</strong><small>I’ll hold the sequence. You do one tiny movement.</small></span>
         </button>
         <button class="choice-card boss-choice" data-action="boss">
           <span class="choice-icon" aria-hidden="true">⚡</span>
-          <span><strong>60-second Boss Fight</strong><small>Three more things unlocks a rare find.</small></span>
+          <span><strong>Fuck this</strong><small>Use the anger. Enter the 60-second Boss Fight.</small></span>
+        </button>
+        <button class="choice-card done-choice" data-action="tapout">
+          <span class="choice-icon" aria-hidden="true">✓</span>
+          <span><strong>Actually, I’m done</strong><small id="tapoutCopy">You washed something. Leave the rest.</small></span>
         </button>
       </div>
       <button class="text-button" data-action="resume">False alarm—I’m going back</button>
+    </div>
+  </dialog>
+
+
+  <dialog class="help-dialog" id="sequenceHelpDialog">
+    <div class="help-inner">
+      <button class="dialog-close" data-action="close-help" aria-label="Close help">×</button>
+      <p class="eyebrow">What is in the way?</p>
+      <h2>Pick the closest one.</h2>
+      <div class="help-options">
+        <button data-action="help-gross"><strong>The food is gross</strong><small>Give me a no-touch workaround.</small></button>
+        <button data-action="help-space"><strong>There’s no space</strong><small>Help me clear one landing spot.</small></button>
+        <button data-action="help-frozen"><strong>My body won’t start</strong><small>Make the movement nearly absurdly small.</small></button>
+        <button data-action="help-lost"><strong>I lost the plot</strong><small>Just tell me the current step again.</small></button>
+      </div>
     </div>
   </dialog>
 
