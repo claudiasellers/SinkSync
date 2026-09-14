@@ -173,6 +173,7 @@
       view.setAttribute("aria-hidden", String(!active));
     });
     state.phase = name;
+    document.body.classList.toggle("sequence-active", name === "sequence");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -350,10 +351,16 @@
 
   function renderSequence() {
     const current = tinySteps[state.sequenceIndex];
-    $("#sequenceCounter").textContent = "Tiny step " + (state.sequenceIndex + 1) + " of " + tinySteps.length;
+    const stepNumber = state.sequenceIndex + 1;
+    $("#sequenceCounter").textContent = "Step " + stepNumber + " of " + tinySteps.length;
+    $("#sequenceProgress").setAttribute("aria-valuenow", String(stepNumber));
+    $("#sequenceProgressBar").style.width = (stepNumber / tinySteps.length * 100) + "%";
+    $("#sequenceInstructionLabel").textContent = state.sequenceSmaller ? "Smaller version" : "Do this now";
     $("#sequenceInstruction").textContent = state.sequenceSmaller ? current.smaller : current.step;
     $("#sequenceInstruction").classList.toggle("smaller", state.sequenceSmaller);
-    $('[data-action="sequence-smaller"]').textContent = state.sequenceSmaller ? "Show the original step" : "Make this even smaller";
+    const smallerButton = $('[data-action="sequence-smaller"] span:last-child');
+    smallerButton.textContent = state.sequenceSmaller ? "Show original step" : "Make it smaller";
+    requestAnimationFrame(() => $("#sequenceInstruction").focus({ preventScroll: true }));
   }
 
   function sequenceDone() {
@@ -403,9 +410,12 @@
     $("#sequenceHelpDialog").close();
     state.sequenceDetour = true;
     state.sequenceSmaller = false;
+    $("#sequenceCounter").textContent = "Blocker workaround";
+    $("#sequenceInstructionLabel").textContent = "Try this first";
     $("#sequenceInstruction").classList.add("smaller");
     $("#sequenceInstruction").textContent = message;
-    $('[data-action="sequence-smaller"]').textContent = "Make this even smaller";
+    $('[data-action="sequence-smaller"] span:last-child').textContent = "Make it smaller";
+    requestAnimationFrame(() => $("#sequenceInstruction").focus({ preventScroll: true }));
     announce(message);
   }
 
