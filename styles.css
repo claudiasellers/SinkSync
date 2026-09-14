@@ -191,6 +191,7 @@ dialog::backdrop { background:rgba(6,8,14,.78);backdrop-filter:blur(12px); }
 .sequence-intro > p:last-child { color: var(--muted); font-size: 1.04rem; line-height: 1.6; max-width: 27rem; margin-top: 24px; }
 .sequence-card, .sequence-finish { border: 1px solid rgba(146,157,255,.2); border-radius: 32px; background: linear-gradient(145deg, rgba(38,47,70,.96), rgba(25,31,48,.98)); box-shadow: var(--shadow); padding: clamp(24px, 4vw, 40px); min-height: 470px; }
 .sequence-card { display: flex; flex-direction: column; }
+.sequence-card[hidden] { display: none; }
 .sequence-meta { display: flex; justify-content: space-between; gap: 18px; color: var(--muted); text-transform: uppercase; letter-spacing: .11em; font-size: .65rem; font-weight: 700; }
 .sequence-meta span:first-child { color: var(--mint); }
 .sequence-instruction { font-size: clamp(2rem, 4.4vw, 3.35rem); line-height: 1.08; letter-spacing: -.045em; font-weight: 600; margin: auto 0; text-wrap: balance; }
