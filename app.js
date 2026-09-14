@@ -38,6 +38,8 @@
   let scrubActive = false;
   let scrubStartedAt = 0;
   let scrubTurns = 0;
+  let scrubFinishing = false;
+  let lastBubbleAt = 0;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -187,10 +189,19 @@
     stopTimers();
     state = freshSession();
     scrubProgress = 0;
+    scrubLastX = null;
+    scrubLastDirection = 0;
+    scrubActive = false;
     scrubStartedAt = 0;
     scrubTurns = 0;
+    scrubFinishing = false;
+    lastBubbleAt = 0;
     $("#scrubMeter").style.setProperty("--progress", "0%");
     $("#scrubPad").setAttribute("aria-valuenow", "0");
+    $("#scrubPad").classList.remove("active", "scrub-complete");
+    $("#scrubGrime").style.opacity = ".92";
+    $("#scrubBubbles").replaceChildren();
+    $("#scrubSuccess").hidden = true;
     $("#scrubLabel").textContent = "scrub back + forth";
     showView("primer");
   }
@@ -576,7 +587,72 @@
     announce(saved.sound ? "Sound on" : "Sound off");
   }
 
-  function scrubMove(x) {
+  function updateScrubVisuals(progress) {
+    const rounded = Math.round(progress);
+    $("#scrubMeter").style.setProperty("--progress", rounded + "%");
+    $("#scrubPad").setAttribute("aria-valuenow", rounded);
+    $("#scrubGrime").style.opacity = String(Math.max(0, .92 * (1 - rounded / 100)));
+    $("#scrubLabel").textContent = rounded >= 94
+      ? "one last good scrub"
+      : rounded > 68
+        ? "keep that rhythm"
+        : rounded > 32
+          ? "yep, exactly that"
+          : "scrub back + forth";
+  }
+
+  function spawnScrubBubbles(clientX, clientY, count = 1, force = false) {
+    const now = performance.now();
+    if (!force && now - lastBubbleAt < 55) return;
+    lastBubbleAt = now;
+    const pad = $("#scrubPad");
+    const rect = pad.getBoundingClientRect();
+    const baseX = Math.max(14, Math.min(rect.width - 14, clientX - rect.left));
+    const baseY = Math.max(18, Math.min(rect.height - 12, clientY - rect.top));
+
+    for (let i = 0; i < count; i++) {
+      const bubble = document.createElement("span");
+      bubble.className = "scrub-bubble";
+      bubble.style.setProperty("--bubble-left", (baseX + Math.random() * 28 - 14) + "px");
+      bubble.style.setProperty("--bubble-top", (baseY + Math.random() * 18 - 9) + "px");
+      bubble.style.setProperty("--bubble-size", (7 + Math.random() * 9) + "px");
+      bubble.style.setProperty("--bubble-drift", (Math.random() * 28 - 14) + "px");
+      $("#scrubBubbles").appendChild(bubble);
+      setTimeout(() => bubble.remove(), 900);
+    }
+  }
+
+  function finishScrub() {
+    if (scrubFinishing) return;
+    scrubFinishing = true;
+    scrubActive = false;
+    scrubProgress = 100;
+    updateScrubVisuals(100);
+
+    const pad = $("#scrubPad");
+    pad.classList.remove("active");
+    pad.classList.add("scrub-complete");
+    $("#scrubSuccess").hidden = false;
+
+    const rect = pad.getBoundingClientRect();
+    for (let i = 0; i < 9; i++) {
+      setTimeout(() => {
+        spawnScrubBubbles(
+          rect.left + rect.width * (.2 + Math.random() * .6),
+          rect.top + rect.height * (.28 + Math.random() * .48),
+          1,
+          true
+        );
+      }, i * 45);
+    }
+
+    celebrateCompletion(pad, { label: "one fork clean ✓" });
+    announce("You did the hard part. You started. Your sink is about to look so clean.");
+    setTimeout(() => startSession(false), 2900);
+  }
+
+  function scrubMove(x, y) {
+    if (scrubFinishing) return;
     if (scrubLastX === null) { scrubLastX = x; return; }
     const delta = x - scrubLastX;
     const direction = Math.sign(delta);
@@ -591,39 +667,29 @@
       scrubLastDirection = direction;
       scrubLastX = x;
       const rounded = Math.round(scrubProgress);
-      $("#scrubMeter").style.setProperty("--progress", rounded + "%");
-      $("#scrubPad").setAttribute("aria-valuenow", rounded);
-      $("#scrubLabel").textContent = rounded >= 94
-        ? "one last good scrub"
-        : rounded > 68
-          ? "keep that rhythm"
-          : rounded > 32
-            ? "yep, exactly that"
-            : "scrub back + forth";
-      if (rounded >= 100) {
-        scrubActive = false;
-        $("#scrubPad").classList.remove("active");
-        celebrateCompletion($("#scrubPad"), { label: "one fork done ✓" });
-        setTimeout(() => startSession(false), 720);
-      }
+      updateScrubVisuals(rounded);
+      spawnScrubBubbles(x, y, changedDirection ? 2 : 1);
+      if (rounded >= 100) finishScrub();
     }
   }
 
   $("#scrubPad").addEventListener("pointerdown", e => {
+    if (scrubFinishing) return;
     scrubActive = true; scrubLastX = e.clientX; scrubLastDirection = 0;
     scrubStartedAt = performance.now(); scrubTurns = 0;
     e.currentTarget.setPointerCapture(e.pointerId); e.currentTarget.classList.add("active");
     audio.ensure();
   });
-  $("#scrubPad").addEventListener("pointermove", e => { if (scrubActive) scrubMove(e.clientX); });
+  $("#scrubPad").addEventListener("pointermove", e => { if (scrubActive) scrubMove(e.clientX, e.clientY); });
   $("#scrubPad").addEventListener("pointerup", e => { scrubActive = false; scrubLastX = null; e.currentTarget.classList.remove("active"); });
   $("#scrubPad").addEventListener("pointercancel", e => { scrubActive = false; scrubLastX = null; e.currentTarget.classList.remove("active"); });
   $("#scrubPad").addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === " ") {
+    if (!scrubFinishing && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === " ")) {
       e.preventDefault(); scrubProgress = Math.min(100, scrubProgress + 12);
-      $("#scrubMeter").style.setProperty("--progress", scrubProgress + "%");
-      $("#scrubPad").setAttribute("aria-valuenow", Math.round(scrubProgress));
-      if (scrubProgress >= 100) startSession(false);
+      updateScrubVisuals(scrubProgress);
+      const rect = $("#scrubPad").getBoundingClientRect();
+      spawnScrubBubbles(rect.left + rect.width / 2, rect.top + rect.height / 2, 2, true);
+      if (scrubProgress >= 100) finishScrub();
     }
   });
 
