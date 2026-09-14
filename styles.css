@@ -1092,3 +1092,146 @@ body.sequence-active .topbar { opacity: 1; }
   .sequence-instruction { font-size: clamp(1.55rem, 7.2vw, 2rem); line-height: 1.24; }
   .sequence-help-actions { gap: 8px; }
 }
+
+/* Scrub transformation: grime -> bubbles -> clean sparkle -> confidence */
+.scrub-pad {
+  isolation: isolate;
+  background:
+    linear-gradient(rgba(255,255,255,.08), transparent 42%),
+    #78a8c4;
+  transition: background .35s steps(4, end), transform .14s steps(2, end);
+}
+.scrub-grime {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: .92;
+  background:
+    radial-gradient(ellipse at 24% 28%, rgba(90,62,43,.92) 0 9%, transparent 10%),
+    radial-gradient(ellipse at 70% 22%, rgba(122,83,48,.82) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 58% 64%, rgba(75,58,46,.9) 0 16%, transparent 17%),
+    radial-gradient(ellipse at 25% 76%, rgba(139,96,52,.76) 0 11%, transparent 12%),
+    repeating-linear-gradient(25deg, rgba(67,45,44,.42) 0 5px, rgba(109,77,50,.34) 5px 12px),
+    #7b6654;
+  box-shadow: inset 0 0 32px rgba(55,37,34,.72);
+  transition: opacity .12s linear;
+}
+.scrub-pad::before {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  z-index: 0;
+  border: 5px solid rgba(255,240,199,.32);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px rgba(34,73,97,.18);
+}
+.scrub-shine { z-index: 2; }
+.scrub-glyph,
+.scrub-label { position: relative; z-index: 4; }
+.scrub-glyph {
+  color: #fff0c7;
+  text-shadow: 2px 2px 0 #432d2c;
+}
+.scrub-label {
+  color: #fff0c7;
+  text-shadow: 2px 2px 0 #432d2c;
+}
+.scrub-bubbles {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 50%;
+}
+.scrub-bubble {
+  position: absolute;
+  left: var(--bubble-left);
+  top: var(--bubble-top);
+  width: var(--bubble-size);
+  height: var(--bubble-size);
+  border: 2px solid #fff8df;
+  border-radius: 50%;
+  background: rgba(175,226,244,.58);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,.72);
+  animation: scrubBubblePop .82s steps(6, end) both;
+}
+.scrub-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+}
+.scrub-sparkles span {
+  position: absolute;
+  color: #fff8df;
+  font-size: 1.7rem;
+  text-shadow: 2px 2px 0 #4f82b1;
+}
+.scrub-sparkles span:nth-child(1) { left: 19%; top: 20%; }
+.scrub-sparkles span:nth-child(2) { right: 18%; top: 31%; font-size: 1.15rem; }
+.scrub-sparkles span:nth-child(3) { right: 26%; bottom: 18%; font-size: 1.35rem; }
+.scrub-pad.scrub-complete .scrub-sparkles {
+  opacity: 1;
+}
+.scrub-pad.scrub-complete .scrub-sparkles span {
+  animation: cleanSparkle .8s steps(5, end) infinite alternate;
+}
+.scrub-pad.scrub-complete .scrub-sparkles span:nth-child(2) { animation-delay: .18s; }
+.scrub-pad.scrub-complete .scrub-sparkles span:nth-child(3) { animation-delay: .34s; }
+.scrub-pad.scrub-complete .scrub-glyph,
+.scrub-pad.scrub-complete > .scrub-label,
+.scrub-pad.scrub-complete > .scrub-shine { opacity: 0; }
+.scrub-success {
+  position: absolute;
+  inset: 13%;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #26344c;
+  text-align: center;
+  animation: scrubSuccessIn .46s steps(5, end) both;
+}
+.scrub-success[hidden] { display: none; }
+.success-spark {
+  color: #fff8df;
+  font-size: 2rem;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #4f82b1;
+  margin-bottom: 10px;
+}
+.scrub-success strong {
+  color: #26344c;
+  font-size: 1.08rem;
+  letter-spacing: .04em;
+}
+.scrub-success p {
+  color: #30445d;
+  font-size: .76rem;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  max-width: 22ch;
+}
+@keyframes scrubBubblePop {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(.35); }
+  18% { opacity: 1; }
+  66% { opacity: .95; transform: translate(calc(-50% + var(--bubble-drift)), -18px) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--bubble-drift)), -30px) scale(1.35); }
+}
+@keyframes cleanSparkle {
+  0% { opacity: .25; transform: scale(.6) rotate(0); }
+  100% { opacity: 1; transform: scale(1.15) rotate(90deg); }
+}
+@keyframes scrubSuccessIn {
+  from { opacity: 0; transform: scale(.82); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrub-bubble { animation-duration: .01ms !important; }
+  .scrub-pad.scrub-complete .scrub-sparkles span { animation: none !important; opacity: 1; }
+}
