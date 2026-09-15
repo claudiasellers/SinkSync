@@ -27,7 +27,12 @@
     { step: "Put it in the drying rack.", smaller: "Move it toward the rack. You can set it down anywhere safe." }
   ];
 
-  const defaults = { totalDrops: 0, totalItems: 0, sessions: 0, unlocked: [], sound: true };
+  const tempoOptions = {
+    cozy: { bpm: 100, interval: 150 },
+    momentum: { bpm: 112, interval: 60000 / 112 / 4 },
+    push: { bpm: 120, interval: 125 }
+  };
+  const defaults = { totalDrops: 0, totalItems: 0, sessions: 0, unlocked: [], sound: true, tempo: "momentum" };
   let saved = loadProgress();
   let state = freshSession();
   let timerId = null;
@@ -94,8 +99,14 @@
       this.boss = value;
       if (this.playing) this.start();
     }
+    refreshTempo() {
+      if (!this.playing || this.boss) return;
+      this.stopLoop();
+      this.scheduleLoop();
+    }
     scheduleLoop() {
-      const interval = this.boss ? 112 : 192;
+      const tempo = tempoOptions[saved.tempo] || tempoOptions.momentum;
+      const interval = this.boss ? 60000 / 134 / 4 : tempo.interval;
       const tick = () => {
         if (!this.playing || !saved.sound || !this.ctx) return;
         const s = this.step++ % 16;
@@ -293,6 +304,11 @@
     const names = ["soft pulse", "rhythm joined", "bassline joined", "melody joined"];
     $("#momentumText").textContent = names[state.momentum - 1];
     $$(".layer-bars span").forEach((bar, i) => bar.classList.toggle("on", i < state.momentum));
+    $$(".tempo-option").forEach(button => {
+      const active = button.dataset.tempo === saved.tempo;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
     audio.setLayers(state.momentum);
     const next = collectibles.find(c => !c.rare && !saved.unlocked.includes(c.id));
     $("#mysteryObject").innerHTML = next
@@ -609,6 +625,15 @@
     announce(saved.sound ? "Sound on" : "Sound off");
   }
 
+  function setTempo(tempo) {
+    if (!tempoOptions[tempo]) return;
+    saved.tempo = tempo;
+    persist();
+    renderSession();
+    audio.refreshTempo();
+    announce(tempoOptions[tempo].bpm + " beats per minute.");
+  }
+
   function resetProgress() {
     const confirmed = window.confirm(
       "Reset all SinkSync progress? This clears every drop, washed-item count, session, and shelf unlock."
@@ -741,6 +766,7 @@
     if (action === "home") returnHome();
     if (action === "restart") startPrimer();
     if (action === "sound") toggleSound();
+    if (action === "tempo") setTempo(target.dataset.tempo);
     if (action === "checkin") checkIn();
     if (action === "item") addItem(false);
     if (action === "ugh") openBreaker();
