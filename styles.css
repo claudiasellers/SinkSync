@@ -1391,3 +1391,52 @@ body.sequence-active .topbar { opacity: 1; }
   .room-art-sparkle,
   .shelf-sprite { animation: none !important; }
 }
+
+/* User-controlled music pace */
+.tempo-control {
+  display: grid;
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+  margin: -2px 0 13px;
+  padding: 7px;
+  border: 3px solid var(--wood-dark);
+  background: #8d583d;
+  box-shadow: inset 2px 2px 0 #bc7b4f;
+}
+.tempo-label {
+  align-self: center;
+  padding: 0 5px 0 3px;
+  color: #f3d89d;
+  font-size: .58rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.tempo-option {
+  min-height: 42px;
+  padding: 6px 4px;
+  border: 2px solid #432d2c;
+  border-radius: 2px;
+  background: #c59562;
+  color: #50382f;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 #e0b77d;
+}
+.tempo-option strong,
+.tempo-option small { display: block; }
+.tempo-option strong { font-size: .62rem; line-height: 1.15; }
+.tempo-option small { margin-top: 3px; font-size: .55rem; opacity: .72; }
+.tempo-option.active {
+  transform: translateY(-1px);
+  border-color: #375d45;
+  background: #9dcc6f;
+  color: #263f31;
+  box-shadow: inset 2px 2px 0 #c9eb99, 2px 3px 0 rgba(23,26,50,.28);
+}
+.tempo-option:focus-visible { outline: 3px solid #fff0c7; outline-offset: 2px; }
+
+@media (max-width: 430px) {
+  .tempo-control { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tempo-label { grid-column: 1 / -1; padding: 1px 2px 0; }
+}
